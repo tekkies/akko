@@ -80,6 +80,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		    public void onLocationChanged(Location location) {
 		      // Called when a new location is found by the network location provider.
 		    	Debug.i(TAG, location.toString());
+		    	//Toast.makeText(getActivity(), location.toString(), Toast.LENGTH_SHORT).show();
 		    }
 
 		    public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -90,10 +91,16 @@ public class MainActivity extends Activity implements OnClickListener {
 		  };
 
 		// Register the listener with the Location Manager to receive location updates
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+		locationManager.requestLocationUpdates(LocationManager.PASSIVE_PROVIDER, 0, 0, locationListener);
 		
 		}
 		
+	}
+
+	protected Context getActivity() {
+		return this;
 	}
 
 
