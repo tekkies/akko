@@ -13,15 +13,27 @@
         android:id="@+id/textViewArp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="@string/arp"/>
+
+    <TextView
+        android:id="@+id/textViewDrone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textViewLocate"
+        android:layout_alignBottom="@+id/textViewLocate"
+        android:layout_alignParentRight="true"
+        android:text="@string/takeoffLand"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
         android:id="@+id/textViewLocate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textViewArp"
         android:layout_alignBottom="@+id/textViewArp"
-        android:layout_marginLeft="18dp"
-        android:layout_toRightOf="@+id/textViewArp"
-        android:text="@string/Locate" />
+        android:layout_centerHorizontal="true"
+        android:text="@string/Locate"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 </RelativeLayout>

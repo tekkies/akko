@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="arp">Arp</string>
     <string name="Locate">Locate</string>
+    <string name="takeoffLand">Takeoff/Land</string>
 
 </resources>

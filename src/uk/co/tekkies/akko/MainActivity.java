@@ -2,6 +2,14 @@ package uk.co.tekkies.akko;
 
 import java.io.IOException;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+
+import com.codeminders.ardrone.ARDrone;
+
 import uk.co.tekkies.akko.utils.Arp;
 import uk.co.tekkies.akko.utils.Debug;
 import android.app.Activity;
@@ -18,13 +26,19 @@ import android.widget.Toast;
 public class MainActivity extends Activity implements OnClickListener {
 
     protected static final String TAG = "MAIN";
+	private static final long CONNECT_TIMEOUT = 30000;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        findViewById(R.id.textViewArp).setOnClickListener(this);
+		
+        SetupLog4J();
+
+		findViewById(R.id.textViewArp).setOnClickListener(this);
         findViewById(R.id.textViewLocate).setOnClickListener(this);
+        findViewById(R.id.textViewDrone).setOnClickListener(this);
+
     }
 
 
@@ -44,6 +58,9 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.textViewLocate:
 			onClickTextViewLocate();
+			break;
+		case R.id.textViewDrone:
+			onClickTextViewDrone();
 			break;
 		}
 	}
@@ -101,6 +118,80 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	protected Context getActivity() {
 		return this;
+	}
+
+
+	private void onClickTextViewDrone() {
+
+		
+		
+		ARDrone drone;
+        try
+        {
+            // Create ARDrone object,
+            // connect to drone and initialize it.
+            drone = new ARDrone();
+
+            drone.connect();
+            drone.clearEmergencySignal();
+
+            // Wait until drone is ready
+            //drone.waitForReady(CONNECT_TIMEOUT);
+
+            // do TRIM operation
+            drone.trim();
+
+            // Take off
+            System.err.println("Taking off");
+            drone.takeOff();
+
+            // Fly a little :)
+            Thread.sleep(2000);
+
+            // Land
+            System.err.println("Landing");
+            drone.land();
+            
+            // Give it some time to land
+            Thread.sleep(5000);
+            
+            // Disconnect from the done
+            drone.disconnect();
+            
+        } catch(Throwable e)
+        {
+        	Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+	
+	}
+
+
+	private void SetupLog4J() {
+
+
+		ConsoleAppender console = new ConsoleAppender(); //create appender
+		  //configure the appender
+		  String PATTERN = "%d [%p|%c|%C{1}] %m%n";
+		  console.setLayout(new PatternLayout(PATTERN)); 
+		  console.setThreshold(Level.FATAL);
+		  console.activateOptions();
+		  //add appender to any Logger (here is root)
+		  Logger.getRootLogger().addAppender(console);
+
+//		  FileAppender fa = new FileAppender();
+//		  fa.setName("FileLogger");
+//		  fa.setFile("mylog.log");
+//		  fa.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"));
+//		  fa.setThreshold(Level.DEBUG);
+//		  fa.setAppend(true);
+//		  fa.activateOptions();
+//
+//		  //add appender to any Logger (here is root)
+//		  Logger.getRootLogger().addAppender(fa)
+//		  //repeat with all other desired appenders
+//		
+		
 	}
 
 
