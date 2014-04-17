@@ -8,6 +8,10 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="18" />
 
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -22,6 +26,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        
+        <receiver android:name=".SmsReceiver"> 
+        <intent-filter android:priority="1000">
+            <action android:name="android.intent.action.PHONE_STATE" />
+            <action android:name="PACKAGE_NAME.android.action.broadcast"/> 
+             <action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
+        </intent-filter> 
+    	</receiver>
+        
+        
     </application>
 
 </manifest>
