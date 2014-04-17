@@ -1,15 +1,11 @@
 package uk.co.tekkies.akko;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
-import android.os.Bundle;
+import uk.co.tekkies.akko.utils.Arp;
+import uk.co.tekkies.akko.utils.Debug;
 import android.app.Activity;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -51,38 +47,11 @@ public class MainActivity extends Activity implements OnClickListener {
 
 	private void doArp() {
 		try {
-			createArpMap();
+			Arp.createArpMap();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Debug.printStacktrace(e);
 		}
 	}
 	
-	public Map<String, String> createArpMap() throws IOException {      
-		Map<String, String> checkMapARP = new HashMap<String, String>();
-		BufferedReader localBufferdReader = new BufferedReader(new FileReader(new File("/proc/net/arp")));
-	    String line = "";       
-	    while ((line = localBufferdReader.readLine()) == null) {
-	        localBufferdReader.close();
-	        try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	        localBufferdReader = new BufferedReader(new FileReader(new File("/proc/net/arp")));
-	    }
-	    do {            
-	        String[] ipmac = line.split("[ ]+");
-	        if (!ipmac[0].matches("IP")) {
-	            String ip = ipmac[0];
-	            String mac = ipmac[3];
-	            if (!checkMapARP.containsKey(ip)) {
-	                checkMapARP.put(ip, mac);               
-	            }                   
-	        }
-	    } while ((line = localBufferdReader.readLine()) != null);
-	    return Collections.unmodifiableMap(checkMapARP);
-	}
     
 }
