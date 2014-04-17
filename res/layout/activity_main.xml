@@ -15,4 +15,13 @@
         android:layout_height="wrap_content"
         android:text="@string/arp"/>
 
+    <TextView
+        android:id="@+id/textViewLocate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/textViewArp"
+        android:layout_marginLeft="18dp"
+        android:layout_toRightOf="@+id/textViewArp"
+        android:text="@string/Locate" />
+
 </RelativeLayout>
