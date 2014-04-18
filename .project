@@ -30,4 +30,11 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>javadrone-api</name>
+			<type>2</type>
+			<location>C:/Users/ajoiner/Documents/Dev/Play/Projects/Akko Project/javadrone/javadrone-api/src/main/java</location>
+		</link>
+	</linkedResources>
 </projectDescription>

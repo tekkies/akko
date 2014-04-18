@@ -9,6 +9,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
 import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.DroneStatusChangeListener;
+import com.codeminders.ardrone.NavData;
+import com.codeminders.ardrone.NavDataListener;
 
 import uk.co.tekkies.akko.utils.Arp;
 import uk.co.tekkies.akko.utils.Debug;
@@ -18,12 +21,13 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity implements OnClickListener, DroneStatusChangeListener, NavDataListener {
 
     protected static final String TAG = "MAIN";
 	private static final long CONNECT_TIMEOUT = 30000;
@@ -134,6 +138,10 @@ public class MainActivity extends Activity implements OnClickListener {
 
             drone.connect();
             drone.clearEmergencySignal();
+            
+            drone.addStatusChangeListener(this);
+            drone.addNavDataListener(this);
+            
 
             // Wait until drone is ready
             //drone.waitForReady(CONNECT_TIMEOUT);
@@ -161,7 +169,7 @@ public class MainActivity extends Activity implements OnClickListener {
         } catch(Throwable e)
         {
         	Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
-            e.printStackTrace();
+        	Log.i("DRONE", e.toString());
         }
 	
 	}
@@ -174,7 +182,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		  //configure the appender
 		  String PATTERN = "%d [%p|%c|%C{1}] %m%n";
 		  console.setLayout(new PatternLayout(PATTERN)); 
-		  console.setThreshold(Level.FATAL);
+		  console.setThreshold(Level.ALL);
 		  console.activateOptions();
 		  //add appender to any Logger (here is root)
 		  Logger.getRootLogger().addAppender(console);
@@ -191,6 +199,19 @@ public class MainActivity extends Activity implements OnClickListener {
 //		  Logger.getRootLogger().addAppender(fa)
 //		  //repeat with all other desired appenders
 //		
+		
+	}
+
+
+	@Override
+	public void navDataReceived(NavData arg0) {
+		Log.i("NAV", arg0.toString());
+	}
+
+
+	@Override
+	public void ready() {
+		// TODO Auto-generated method stub
 		
 	}
 
