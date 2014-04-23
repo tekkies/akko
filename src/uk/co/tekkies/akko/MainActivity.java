@@ -136,48 +136,28 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
             // Create ARDrone object,
             // connect to drone and initialize it.
             drone = new ARDrone();
-            
-            
             drone.addStatusChangeListener(this);
             drone.addNavDataListener(this);
-
             drone.connect();
             drone.clearEmergencySignal();
-            
-            //drone.sendAllNavigationData();
-            drone.sendDemoNavigationData();
-            
+            //drone.sendDemoNavigationData();
             drone.playLED(LED.RED_SNAKE, 2, 5);
-            
             Log.i("DRONE", "State:"+drone.getState());
-
             // Wait until drone is ready
             drone.waitForReady(CONNECT_TIMEOUT);
-
             // do TRIM operation
             drone.trim();
-
-
-//            // Take off
-//            System.err.println("Taking off");
-//            drone.takeOff();
-//
-//            // Fly a little :)
-//            Thread.sleep(2000);
-//
-//            // Land
-//            System.err.println("Landing");
-//            drone.land();
-//            
-//            // Give it some time to land
-//            Thread.sleep(5000);
-
-            
-            Thread.sleep(1000);
-
+            // Take off
+            System.err.println("Taking off");
+            drone.takeOff();
+            // Fly a little :)
+            Thread.sleep(3500);
+            // Land
+            System.err.println("Landing");
+            drone.land();
+            // Give it some time to land
+            Thread.sleep(5000);
             Log.i("DRONE", "State:"+drone.getState());
-            
-            
             // Disconnect from the done
             drone.disconnect();
             
