@@ -1,5 +1,9 @@
 package uk.co.tekkies.akko;
 
+import java.net.UnknownHostException;
+
+import com.codeminders.ardrone.ARDrone;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -29,10 +33,44 @@ public class SmsReceiver extends BroadcastReceiver
 	            str += " :";
 	            str += msgs[i].getMessageBody().toString();
 	            str += "\n";
+	            String message = msgs[i].getMessageBody().toString();
+	            if(message.equalsIgnoreCase("akko kill")){
+	            	doKill(context);
+	            } else if(message.equalsIgnoreCase("akko land")) {
+	            	doLand(context);
+	            }
+	            
 	        }
-	        //---display the new SMS message---
-	        Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
 	    }                   
-	    Toast.makeText(context, "Hey", Toast.LENGTH_SHORT).show();
 	    }
+
+	private void doLand(Context context) {
+	    Toast.makeText(context, "Landing...", Toast.LENGTH_LONG).show();
+		try {
+			ARDrone arDrone = new ARDrone();
+			arDrone.connect();
+			for(int i=0;i<5;i++) {
+				arDrone.land();
+				Thread.sleep(500);
+			}
+			arDrone.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void doKill(Context context) {
+	    Toast.makeText(context, "Emergency...", Toast.LENGTH_LONG).show();
+		try {
+			ARDrone arDrone = new ARDrone();
+			arDrone.connect();
+			for(int i=0;i<5;i++) {
+				arDrone.sendEmergencySignal();
+				Thread.sleep(500);
+			}
+			arDrone.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
