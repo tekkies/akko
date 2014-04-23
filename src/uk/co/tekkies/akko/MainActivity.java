@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
         findViewById(R.id.textViewLocate).setOnClickListener(this);
         findViewById(R.id.textViewDrone).setOnClickListener(this);
         
-        onClickTextViewDrone();
+        //onClickTextViewDrone();
 
     }
 
