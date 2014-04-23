@@ -1,14 +1,11 @@
 package uk.co.tekkies.akko;
 
 import java.io.IOException;
-
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import com.codeminders.ardrone.ARDrone;
+import com.codeminders.ardrone.ARDrone.LED;
 import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
@@ -30,18 +27,20 @@ import android.widget.Toast;
 public class MainActivity extends Activity implements OnClickListener, DroneStatusChangeListener, NavDataListener {
 
     protected static final String TAG = "MAIN";
-	private static final long CONNECT_TIMEOUT = 30000;
+	private static final long CONNECT_TIMEOUT = 3000;
 
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 		
-        SetupLog4J();
+        SetupLogComsumer();
 
 		findViewById(R.id.textViewArp).setOnClickListener(this);
         findViewById(R.id.textViewLocate).setOnClickListener(this);
         findViewById(R.id.textViewDrone).setOnClickListener(this);
+        
+        onClickTextViewDrone();
 
     }
 
@@ -104,7 +103,9 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 		    	//Toast.makeText(getActivity(), location.toString(), Toast.LENGTH_SHORT).show();
 		    }
 
-		    public void onStatusChanged(String provider, int status, Bundle extras) {}
+		    public void onStatusChanged(String provider, int status, Bundle extras) {
+		    	Debug.i(TAG, provider+"|"+status+"|"+extras.toString());
+		    }
 
 		    public void onProviderEnabled(String provider) {}
 
@@ -135,33 +136,47 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
             // Create ARDrone object,
             // connect to drone and initialize it.
             drone = new ARDrone();
+            
+            
+            drone.addStatusChangeListener(this);
+            drone.addNavDataListener(this);
 
             drone.connect();
             drone.clearEmergencySignal();
             
-            drone.addStatusChangeListener(this);
-            drone.addNavDataListener(this);
+            //drone.sendAllNavigationData();
+            drone.sendDemoNavigationData();
             
+            drone.playLED(LED.RED_SNAKE, 2, 5);
+            
+            Log.i("DRONE", "State:"+drone.getState());
 
             // Wait until drone is ready
-            //drone.waitForReady(CONNECT_TIMEOUT);
+            drone.waitForReady(CONNECT_TIMEOUT);
 
             // do TRIM operation
             drone.trim();
 
-            // Take off
-            System.err.println("Taking off");
-            drone.takeOff();
 
-            // Fly a little :)
-            Thread.sleep(2000);
+//            // Take off
+//            System.err.println("Taking off");
+//            drone.takeOff();
+//
+//            // Fly a little :)
+//            Thread.sleep(2000);
+//
+//            // Land
+//            System.err.println("Landing");
+//            drone.land();
+//            
+//            // Give it some time to land
+//            Thread.sleep(5000);
 
-            // Land
-            System.err.println("Landing");
-            drone.land();
             
-            // Give it some time to land
-            Thread.sleep(5000);
+            Thread.sleep(1000);
+
+            Log.i("DRONE", "State:"+drone.getState());
+            
             
             // Disconnect from the done
             drone.disconnect();
@@ -171,50 +186,57 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
         	Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         	Log.i("DRONE", e.toString());
         }
+        
+        try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	
 	}
 
+	public class LogHandler extends Handler {
 
-	private void SetupLog4J() {
+		@Override
+		public void close() {
+			// TODO Auto-generated method stub
+			
+		}
 
+		@Override
+		public void flush() {
+			// TODO Auto-generated method stub
+			
+		}
 
-		ConsoleAppender console = new ConsoleAppender(); //create appender
-		  //configure the appender
-		  String PATTERN = "%d [%p|%c|%C{1}] %m%n";
-		  console.setLayout(new PatternLayout(PATTERN)); 
-		  console.setThreshold(Level.ALL);
-		  console.activateOptions();
-		  //add appender to any Logger (here is root)
-		  Logger.getRootLogger().addAppender(console);
-
-//		  FileAppender fa = new FileAppender();
-//		  fa.setName("FileLogger");
-//		  fa.setFile("mylog.log");
-//		  fa.setLayout(new PatternLayout("%d %-5p [%c{1}] %m%n"));
-//		  fa.setThreshold(Level.DEBUG);
-//		  fa.setAppend(true);
-//		  fa.activateOptions();
-//
-//		  //add appender to any Logger (here is root)
-//		  Logger.getRootLogger().addAppender(fa)
-//		  //repeat with all other desired appenders
-//		
+		@Override
+		public void publish(LogRecord record) {
+			// TODO Auto-generated method stub
+			Log.i("JAVALOG", record.getMessage());
+		}
 		
+		
+	
+	}
+	
+	private void SetupLogComsumer() {
+		  LogHandler handler = new LogHandler();
+		  java.util.logging.Logger.getLogger("com.codeminders.ardrone").addHandler(handler );
+		  java.util.logging.Logger.getLogger("com.codeminders.ardrone").setLevel(java.util.logging.Level.FINER);
+		  java.util.logging.Logger.getLogger("com.codeminders.ardrone").log(java.util.logging.Level.FINER,"Fine log entry");
 	}
 
 
 	@Override
 	public void navDataReceived(NavData arg0) {
-		Log.i("NAV", arg0.toString());
+		//Log.i("NAV", arg0.toString());
 	}
 
 
 	@Override
 	public void ready() {
-		// TODO Auto-generated method stub
-		
+		Log.i("DRONE", "Ready");
 	}
-
-
     
 }
