@@ -2,6 +2,8 @@ package uk.co.tekkies.akko;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Handler;
@@ -20,6 +22,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -33,7 +36,7 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
     protected static final String TAG = "MAIN";
 	private static final long CONNECT_TIMEOUT = 3000;
 	LocationManager locationManager=null;
-	TextView textViewStatus = null;
+	public TextView textViewStatus = null;
 	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	
 	@Override
@@ -49,9 +52,12 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
         textViewStatus = (TextView) findViewById(R.id.textViewStatus);
         
         //onClickTextViewDrone();
+        
+        new UdpAsyncTask().execute(1985);
 
     }
 
+	
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -156,7 +162,7 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 		
 	}
 
-	protected Context getActivity() {
+	protected MainActivity getMainActivity() {
 		return this;
 	}
 
@@ -254,4 +260,49 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 		Log.i("DRONE", "Ready");
 	}
     
+	
+    class UdpAsyncTask extends AsyncTask<Integer, String, String> {
+
+		private static final int MAX_UDP_DATAGRAM_LEN = 1024;
+
+		@Override
+		protected String doInBackground(Integer... params) {
+			String message;
+	        byte[] lmessage = new byte[MAX_UDP_DATAGRAM_LEN];
+	        DatagramPacket packet = new DatagramPacket(lmessage, lmessage.length);
+	        DatagramSocket socket = null;
+
+	        boolean keepRunning = true;
+	        
+	        while(keepRunning) {
+	            try {
+	                socket = new DatagramSocket(params[0]);
+	                socket.receive(packet);
+	                message = new String(lmessage, 0, packet.getLength());
+	                this.publishProgress(message);
+	                if(message.equalsIgnoreCase("exit")){
+	                	keepRunning = false;
+	                }
+	            } catch (Throwable e) {
+	                e.printStackTrace();
+	            }
+	        }
+
+	        if (socket != null) {
+	            socket.close();
+	        }
+	        return null;
+	    }
+    	
+		@Override
+		protected void onProgressUpdate(String... values) {
+			Log.i("UDP", values[0]);
+			getMainActivity().textViewStatus.setText("UDP:"+values[0]);
+		} 
+    }
+	
+	
+
+
+	
 }
