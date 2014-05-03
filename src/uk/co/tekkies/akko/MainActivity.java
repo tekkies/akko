@@ -1,6 +1,9 @@
 package uk.co.tekkies.akko;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -22,13 +25,17 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity implements OnClickListener, DroneStatusChangeListener, NavDataListener {
 
     protected static final String TAG = "MAIN";
 	private static final long CONNECT_TIMEOUT = 3000;
-
+	LocationManager locationManager=null;
+	TextView textViewStatus = null;
+	SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +44,9 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
         SetupLogComsumer();
 
 		findViewById(R.id.textViewArp).setOnClickListener(this);
-        findViewById(R.id.textViewLocate).setOnClickListener(this);
         findViewById(R.id.textViewDrone).setOnClickListener(this);
+        findViewById(R.id.textViewLocate).setOnClickListener(this);
+        textViewStatus = (TextView) findViewById(R.id.textViewStatus);
         
         //onClickTextViewDrone();
 
@@ -89,17 +97,44 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 	LocationListener locationListener=null;
 
 	private void doLocate() {
-		if(locationListener == null) {
+		if(locationListener != null) {
+			if(locationManager != null) {
+				locationManager.removeUpdates(locationListener);
+				locationListener = null;
+				textViewStatus.setText("Stopped");
+			}
+		} else {
 		
-		
-		// Acquire a reference to the system Location Manager
-		LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+			textViewStatus.setText("Starting GPS");
+			
+			// Acquire a reference to the system Location Manager
+			locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+	
+			// Define a listener that responds to location updates
+			locationListener = new LocationListener() {
+			    public void onLocationChanged(Location location) {
+			      // Called when a new location is found by the network location provider.
+		    	
+		    	
+			    	
+			    	
+			    	
+		    	String logMessage = simpleDateFormat.format(Calendar.getInstance().getTime())+","+location.toString()+"\n";
+		    	
+		    	Debug.i(TAG, logMessage);
+		    	
+				try {
+					FileOutputStream outputStream = new FileOutputStream("/sdcard/akkogps.log", true);
+				  outputStream.write(logMessage.getBytes());
+				  outputStream.close();
+				} catch (Exception e) {
+				  e.printStackTrace();
+				}
+				
+				
+				textViewStatus.setText(logMessage.replace(',', '\n'));
+				//textViewStatus.setText(Integer.toString((int) location.getAccuracy())+","+Integer.toString((int) location.getSpeed())+","+Integer.toString((int) location.getBearing()));
 
-		// Define a listener that responds to location updates
-		locationListener = new LocationListener() {
-		    public void onLocationChanged(Location location) {
-		      // Called when a new location is found by the network location provider.
-		    	Debug.i(TAG, location.toString());
 		    	//Toast.makeText(getActivity(), location.toString(), Toast.LENGTH_SHORT).show();
 		    }
 
