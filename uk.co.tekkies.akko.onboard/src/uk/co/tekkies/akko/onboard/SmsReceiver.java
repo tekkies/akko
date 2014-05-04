@@ -1,4 +1,4 @@
-package uk.co.tekkies.akko;
+package uk.co.tekkies.akko.onboard;
 
 import java.net.UnknownHostException;
 

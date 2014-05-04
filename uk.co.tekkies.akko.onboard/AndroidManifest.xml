@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="uk.co.tekkies.akko"
+    package="uk.co.tekkies.akko.onboard"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -22,7 +22,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="uk.co.tekkies.akko.MainActivity"
+            android:name="uk.co.tekkies.akko.onboard.MainActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,7 +32,7 @@
         </activity>
         
         
-        <receiver android:name=".SmsReceiver"> 
+        <receiver android:name=".onboard.SmsReceiver"> 
         <intent-filter android:priority="1000">
             <action android:name="android.intent.action.PHONE_STATE" />
             <action android:name="PACKAGE_NAME.android.action.broadcast"/> 

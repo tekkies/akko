@@ -1,4 +1,4 @@
-package uk.co.tekkies.akko;
+package uk.co.tekkies.akko.onboard;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,8 +19,9 @@ import com.codeminders.ardrone.DroneStatusChangeListener;
 import com.codeminders.ardrone.NavData;
 import com.codeminders.ardrone.NavDataListener;
 
-import uk.co.tekkies.akko.utils.Arp;
-import uk.co.tekkies.akko.utils.Debug;
+import uk.co.tekkies.akko.onboard.R;
+import uk.co.tekkies.akko.onboard.utils.Arp;
+import uk.co.tekkies.akko.onboard.utils.Debug;
 import android.app.Activity;
 import android.content.Context;
 import android.location.Location;
