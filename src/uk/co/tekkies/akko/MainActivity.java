@@ -4,8 +4,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Enumeration;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
@@ -50,6 +54,8 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
         findViewById(R.id.textViewDrone).setOnClickListener(this);
         findViewById(R.id.textViewLocate).setOnClickListener(this);
         textViewStatus = (TextView) findViewById(R.id.textViewStatus);
+        
+        textViewStatus.setText("IP:"+getLocalIpAddress());
         
         //onClickTextViewDrone();
         
@@ -110,25 +116,13 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 				textViewStatus.setText("Stopped");
 			}
 		} else {
-		
 			textViewStatus.setText("Starting GPS");
-			
-			// Acquire a reference to the system Location Manager
 			locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-	
-			// Define a listener that responds to location updates
 			locationListener = new LocationListener() {
 			    public void onLocationChanged(Location location) {
 			      // Called when a new location is found by the network location provider.
-		    	
-		    	
-			    	
-			    	
-			    	
 		    	String logMessage = simpleDateFormat.format(Calendar.getInstance().getTime())+","+location.toString()+"\n";
-		    	
 		    	Debug.i(TAG, logMessage);
-		    	
 				try {
 					FileOutputStream outputStream = new FileOutputStream("/sdcard/akkogps.log", true);
 				  outputStream.write(logMessage.getBytes());
@@ -136,11 +130,8 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 				} catch (Exception e) {
 				  e.printStackTrace();
 				}
-				
-				
 				textViewStatus.setText(logMessage.replace(',', '\n'));
 				//textViewStatus.setText(Integer.toString((int) location.getAccuracy())+","+Integer.toString((int) location.getSpeed())+","+Integer.toString((int) location.getBearing()));
-
 		    	//Toast.makeText(getActivity(), location.toString(), Toast.LENGTH_SHORT).show();
 		    }
 
@@ -166,11 +157,7 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 		return this;
 	}
 
-
 	private void onClickTextViewDrone() {
-
-		
-		
 		ARDrone drone;
         try
         {
@@ -202,8 +189,7 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
             // Disconnect from the done
             drone.disconnect();
             
-        } catch(Throwable e)
-        {
+        } catch(Throwable e) {
         	Toast.makeText(this, e.toString(), Toast.LENGTH_SHORT).show();
         	Log.i("DRONE", e.toString());
         }
@@ -236,9 +222,6 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 			// TODO Auto-generated method stub
 			Log.i("JAVALOG", record.getMessage());
 		}
-		
-		
-	
 	}
 	
 	private void SetupLogComsumer() {
@@ -248,18 +231,37 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 		  java.util.logging.Logger.getLogger("com.codeminders.ardrone").log(java.util.logging.Level.FINER,"Fine log entry");
 	}
 
-
 	@Override
 	public void navDataReceived(NavData arg0) {
 		//Log.i("NAV", arg0.toString());
 	}
 
-
 	@Override
 	public void ready() {
 		Log.i("DRONE", "Ready");
 	}
-    
+	
+	public String getLocalIpAddress() {
+	    
+		String ip="";
+		
+		try {
+	        for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+	            NetworkInterface intf = en.nextElement();
+	            for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+	                InetAddress inetAddress = enumIpAddr.nextElement();
+	                if (!inetAddress.isLoopbackAddress()) {
+	                    ip += inetAddress.getHostAddress() + "\n";
+	                    Log.i(TAG, "***** IP="+ ip);
+	                }
+	            }
+	        }
+	    } catch (SocketException ex) {
+	        Log.e(TAG, ex.toString());
+	    }
+	    return ip;
+	}
+	
 	
     class UdpAsyncTask extends AsyncTask<Integer, String, String> {
 
@@ -271,23 +273,20 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 	        byte[] lmessage = new byte[MAX_UDP_DATAGRAM_LEN];
 	        DatagramPacket packet = new DatagramPacket(lmessage, lmessage.length);
 	        DatagramSocket socket = null;
-
 	        boolean keepRunning = true;
-	        
-	        while(keepRunning) {
-	            try {
-	                socket = new DatagramSocket(params[0]);
+            try {
+				socket = new DatagramSocket(params[0]);
+		        while(keepRunning) {
 	                socket.receive(packet);
 	                message = new String(lmessage, 0, packet.getLength());
 	                this.publishProgress(message);
 	                if(message.equalsIgnoreCase("exit")){
 	                	keepRunning = false;
 	                }
-	            } catch (Throwable e) {
-	                e.printStackTrace();
-	            }
-	        }
-
+		        }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
 	        if (socket != null) {
 	            socket.close();
 	        }
