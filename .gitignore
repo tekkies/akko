@@ -1,3 +1,4 @@
 bin/
 gen/
 android-support-v4.jar
+/uk.co.tekkies.akko.groundstation/.settings
