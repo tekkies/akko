@@ -15,8 +15,8 @@ import android.view.View;
 public class PlotView extends View {
 	Paint paint;
 	MotionEvent motionEvent=null;
-	ArrayList<PointF> points=new ArrayList<PointF>();
-	RectF realExtent=null;
+	ArrayList<PointF> realPoints=null;
+	RectF realPointsBounds=null;
 
 	public PlotView(Context context) {
 		super(context);
@@ -29,6 +29,8 @@ public class PlotView extends View {
 	}
 	
 	private void initialize(Context context) {
+		realPointsBounds=null;
+		realPoints=new ArrayList<PointF>();
 		createSampleData();
 		setupPalette(context);
 	}
@@ -44,11 +46,11 @@ public class PlotView extends View {
 		if(isInEditMode()) {
 			canvas.drawRect(new Rect(0,0,100,100), paint);
 		} else {
-			for(int i=0;i<points.size()-1;i++) {
+			for(int i=0;i<realPoints.size()-1;i++) {
 				//canvas.drawPoint(points.get(i).x+50, points.get(i).y, paint);
 				//canvas.drawLine(points.get(i).x+50, points.get(i).y,points.get(i+1).x+50, points.get(i+1).y, paint);
-				canvas.drawPoint(100+(points.get(i).x-realExtent.left)/realExtent.width()*100, 
-								 100-(points.get(i).y-realExtent.top)/realExtent.height()*100, 
+				canvas.drawPoint(100+(realPoints.get(i).x-realPointsBounds.left)/realPointsBounds.width()*100, 
+								 100-(realPoints.get(i).y-realPointsBounds.top)/realPointsBounds.height()*100, 
 								 paint);
 			}
 		}
@@ -691,10 +693,10 @@ public class PlotView extends View {
 	}
 
 	private void addSample(double x, double y) {
-		if(realExtent == null) {
-			realExtent = new RectF((float)x, (float)y, (float)x, (float)y);
+		if(realPointsBounds == null) {
+			realPointsBounds = new RectF((float)x, (float)y, (float)x, (float)y);
 		}
-		realExtent.union((float)x, (float)y);
-        points.add(new PointF((float)x, (float)y));		
+		realPointsBounds.union((float)x, (float)y);
+        realPoints.add(new PointF((float)x, (float)y));		
 	}
 }
