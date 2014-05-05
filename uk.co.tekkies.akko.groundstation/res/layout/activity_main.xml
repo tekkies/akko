@@ -9,8 +9,13 @@
     tools:context=".MainActivity" >
 
     <uk.co.tekkies.akko.groundstation.JoystickView
+        android:id="@+id/joystickView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent" />
+
+    <uk.co.tekkies.akko.groundstation.PlotView
+        android:id="@+id/locationView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"  />
 
 </RelativeLayout>

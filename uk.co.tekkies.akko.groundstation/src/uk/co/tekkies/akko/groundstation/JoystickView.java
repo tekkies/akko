@@ -35,6 +35,10 @@ public class JoystickView extends View {
 				canvas.drawRect(touchRect, paint);
 			}
 		}
+		if(isInEditMode()) {
+			canvas.drawRect(new Rect(50,50,150,150), paint);
+		}
+
 	}
 
 	@Override

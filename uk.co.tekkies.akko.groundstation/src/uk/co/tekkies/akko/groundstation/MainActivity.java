@@ -19,7 +19,6 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		new UdpAsyncTask().execute(0);
-		new UdpAsyncTask().execute(0);
 	}
 	
     class UdpAsyncTask extends AsyncTask<Integer, String, String> {
