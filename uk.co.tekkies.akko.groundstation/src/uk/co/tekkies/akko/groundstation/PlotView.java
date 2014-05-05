@@ -1,6 +1,8 @@
 package uk.co.tekkies.akko.groundstation;
 import java.util.ArrayList;
 
+import org.apache.http.client.CircularRedirectException;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -20,6 +22,7 @@ public class PlotView extends View {
 	RectF pointsDegreesBounds=null;
 	RectF rectMeters = new RectF();
 	double latitudeCircumference=0;
+	int viewLimitingDimension = 0;
 	
 
 	public PlotView(Context context) {
@@ -50,9 +53,14 @@ public class PlotView extends View {
 		rectMeters.left = (float) -Math.abs((1000*((pointsDegreesBounds.height()/360)*EARTH_CIRCUMFERENCE_KM)/2));
 		rectMeters.right = 0-rectMeters.left;
 		rectMeters.bottom = (float) -Math.abs((1000*((pointsDegreesBounds.width()/360)*latitudeCircumference)/2));
-		rectMeters.top = 0-rectMeters.bottom; 
-		//Log.i("SIZE","Size:"+w+","+h);
-		Log.i("SIZE","km:"+rectMeters.toString());
+		rectMeters.top = 0-rectMeters.bottom;
+		
+		if((rectMeters.width()/rectMeters.height()) > (w/h)) {
+			viewLimitingDimension = w;	
+		} else {
+			viewLimitingDimension = h;
+		}
+			
 	}
 	
 	private void initialize(Context context) {
@@ -719,6 +727,7 @@ public class PlotView extends View {
 		addSample(-4.08850193023681,51.573622226715);
 		addSample(-4.08850193023681,51.573622226715);
 		
+		
 	}
 
 	private void addSample(double x, double y) {
@@ -740,10 +749,11 @@ public class PlotView extends View {
 		pointOut.y = (int) pointIn.y;
 		
 		double yFraction = (pointsDegreesBounds.centerY()-pointIn.y)/pointsDegreesBounds.height();
-		pointOut.y = (int) (getHeight()/2 + (yFraction* getHeight())) ;  //invert y
+		pointOut.y = (int) (getHeight()/2 + (yFraction* viewLimitingDimension)) ;  //invert y
 		
 		double xFraction = (pointsDegreesBounds.centerX()-pointIn.x)/pointsDegreesBounds.width();
-		pointOut.x = (int) (getWidth()/2 - (xFraction* getWidth())) ;
+		pointOut.x = (int) (getWidth()/2 - (xFraction*(latitudeCircumference/EARTH_CIRCUMFERENCE_KM)* viewLimitingDimension)) ;
+		//pointOut.x = (int) (getWidth()/2 - (xFraction* viewLimitingDimension)) ;
 		return pointOut;
 	}
 
