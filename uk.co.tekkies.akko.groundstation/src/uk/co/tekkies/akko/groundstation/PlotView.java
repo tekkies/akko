@@ -4,19 +4,20 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class PlotView extends View {
 	Paint paint;
 	MotionEvent motionEvent=null;
-	ArrayList<PointF> realPoints=null;
-	RectF realPointsBounds=null;
+	ArrayList<PointF> pointsDegrees=null;
+	RectF pointsDegreesBounds=null;
+	RectF rectMeters = new RectF();
 
 	public PlotView(Context context) {
 		super(context);
@@ -27,10 +28,33 @@ public class PlotView extends View {
 		super(context, attrs);
 		initialize(context);
 	}
+
+	
+	final int EARTH_RADIUS_KM = 6371;
+	final double EARTH_CIRCUMFERENCE_KM = 2*Math.PI*EARTH_RADIUS_KM;
+	
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+		super.onSizeChanged(w, h, oldw, oldh);
+		
+		//First pronciples
+		
+		double heightKm =  Math.abs((pointsDegreesBounds.height()/360)*EARTH_CIRCUMFERENCE_KM);
+		rectMeters.bottom = (float) (heightKm/2);
+		rectMeters.top = 0-rectMeters.bottom;
+		double centerLatitudeInRads = (pointsDegreesBounds.centerY()/360)*(2*Math.PI);
+		double latitudeCircumference = EARTH_CIRCUMFERENCE_KM*(Math.cos(centerLatitudeInRads));
+		rectMeters.left = (float) -Math.abs((1000*((pointsDegreesBounds.height()/360)*EARTH_CIRCUMFERENCE_KM)/2));
+		rectMeters.right = 0-rectMeters.left;
+		rectMeters.bottom = (float) -Math.abs((1000*((pointsDegreesBounds.width()/360)*latitudeCircumference)/2));
+		rectMeters.top = 0-rectMeters.bottom; 
+		//Log.i("SIZE","Size:"+w+","+h);
+		Log.i("SIZE","km:"+rectMeters.toString());
+	}
 	
 	private void initialize(Context context) {
-		realPointsBounds=null;
-		realPoints=new ArrayList<PointF>();
+		pointsDegreesBounds=null;
+		pointsDegrees=new ArrayList<PointF>();
 		createSampleData();
 		setupPalette(context);
 	}
@@ -46,11 +70,11 @@ public class PlotView extends View {
 		if(isInEditMode()) {
 			canvas.drawRect(new Rect(0,0,100,100), paint);
 		} else {
-			for(int i=0;i<realPoints.size()-1;i++) {
+			for(int i=0;i<pointsDegrees.size()-1;i++) {
 				//canvas.drawPoint(points.get(i).x+50, points.get(i).y, paint);
 				//canvas.drawLine(points.get(i).x+50, points.get(i).y,points.get(i+1).x+50, points.get(i+1).y, paint);
-				canvas.drawPoint(100+(realPoints.get(i).x-realPointsBounds.left)/realPointsBounds.width()*100, 
-								 100-(realPoints.get(i).y-realPointsBounds.top)/realPointsBounds.height()*100, 
+				canvas.drawPoint(100+(pointsDegrees.get(i).x-pointsDegreesBounds.left)/pointsDegreesBounds.width()*100, 
+								 100-(pointsDegrees.get(i).y-pointsDegreesBounds.top)/pointsDegreesBounds.height()*100, 
 								 paint);
 			}
 		}
@@ -693,10 +717,10 @@ public class PlotView extends View {
 	}
 
 	private void addSample(double x, double y) {
-		if(realPointsBounds == null) {
-			realPointsBounds = new RectF((float)x, (float)y, (float)x, (float)y);
+		if(pointsDegreesBounds == null) {
+			pointsDegreesBounds = new RectF((float)x, (float)y, (float)x, (float)y);
 		}
-		realPointsBounds.union((float)x, (float)y);
-        realPoints.add(new PointF((float)x, (float)y));		
+		pointsDegreesBounds.union((float)x, (float)y);
+        pointsDegrees.add(new PointF((float)x, (float)y));		
 	}
 }
