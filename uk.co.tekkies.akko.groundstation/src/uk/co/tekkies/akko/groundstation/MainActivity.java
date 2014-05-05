@@ -22,13 +22,9 @@ public class MainActivity extends Activity {
 		new UdpAsyncTask().execute(0);
 	}
 	
-	
-	
     class UdpAsyncTask extends AsyncTask<Integer, String, String> {
 
-		private static final int MAX_UDP_DATAGRAM_LEN = 1024;
-
-		@Override
+    	@Override
 		protected String doInBackground(Integer... params) {
 			sendUdpPacket();
 	        return null;
@@ -63,5 +59,5 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
-
+	
 }
