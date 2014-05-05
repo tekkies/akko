@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
@@ -18,6 +19,8 @@ public class PlotView extends View {
 	ArrayList<PointF> pointsDegrees=null;
 	RectF pointsDegreesBounds=null;
 	RectF rectMeters = new RectF();
+	double latitudeCircumference=0;
+	
 
 	public PlotView(Context context) {
 		super(context);
@@ -38,12 +41,12 @@ public class PlotView extends View {
 		super.onSizeChanged(w, h, oldw, oldh);
 		
 		//First pronciples
-		
+	
 		double heightKm =  Math.abs((pointsDegreesBounds.height()/360)*EARTH_CIRCUMFERENCE_KM);
 		rectMeters.bottom = (float) (heightKm/2);
 		rectMeters.top = 0-rectMeters.bottom;
 		double centerLatitudeInRads = (pointsDegreesBounds.centerY()/360)*(2*Math.PI);
-		double latitudeCircumference = EARTH_CIRCUMFERENCE_KM*(Math.cos(centerLatitudeInRads));
+		latitudeCircumference = EARTH_CIRCUMFERENCE_KM*(Math.cos(centerLatitudeInRads));
 		rectMeters.left = (float) -Math.abs((1000*((pointsDegreesBounds.height()/360)*EARTH_CIRCUMFERENCE_KM)/2));
 		rectMeters.right = 0-rectMeters.left;
 		rectMeters.bottom = (float) -Math.abs((1000*((pointsDegreesBounds.width()/360)*latitudeCircumference)/2));
@@ -70,17 +73,19 @@ public class PlotView extends View {
 		if(isInEditMode()) {
 			canvas.drawRect(new Rect(0,0,100,100), paint);
 		} else {
+			Point screenPoint = new Point();
 			for(int i=0;i<pointsDegrees.size()-1;i++) {
-				//canvas.drawPoint(points.get(i).x+50, points.get(i).y, paint);
-				//canvas.drawLine(points.get(i).x+50, points.get(i).y,points.get(i+1).x+50, points.get(i+1).y, paint);
 				canvas.drawPoint(100+(pointsDegrees.get(i).x-pointsDegreesBounds.left)/pointsDegreesBounds.width()*100, 
 								 100-(pointsDegrees.get(i).y-pointsDegreesBounds.top)/pointsDegreesBounds.height()*100, 
 								 paint);
+				degreesToPixels(pointsDegrees.get(i), screenPoint);
+				canvas.drawPoint(screenPoint.x, screenPoint.y, paint);
 			}
 		}
 	}
 
 	
+
 	private void createSampleData() {
 		
 		addSample(-4.08851265907287,51.5735685825347);
@@ -723,4 +728,25 @@ public class PlotView extends View {
 		pointsDegreesBounds.union((float)x, (float)y);
         pointsDegrees.add(new PointF((float)x, (float)y));		
 	}
+	
+	
+	
+	private Point degreesToPixels(PointF pointIn, Point pointOut) {
+
+		
+		
+		//Starting point
+		pointOut.x = (int) 300;
+		pointOut.y = (int) pointIn.y;
+		
+		double yFraction = (pointsDegreesBounds.centerY()-pointIn.y)/pointsDegreesBounds.height();
+		pointOut.y = (int) (getHeight()/2 + (yFraction* getHeight())) ;  //invert y
+		
+		double xFraction = (pointsDegreesBounds.centerX()-pointIn.x)/pointsDegreesBounds.width();
+		pointOut.x = (int) (getWidth()/2 - (xFraction* getWidth())) ;
+		return pointOut;
+	}
+
+	
+	
 }
