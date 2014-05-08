@@ -61,14 +61,18 @@ public class JoystickView extends View {
 		invalidate();
 		return true;
 	}
+
 	int leftPointerId=-2;
 	private void calculateJoystickPositions(MotionEvent motionEvent, Canvas canvas) {
 		if(motionEvent != null) {
+			Log.i("ACTION", motionEvent.getActionMasked()+","+motionEvent.getActionIndex());
+			canvas.drawText(motionEvent.getActionMasked()+","+motionEvent.getActionIndex(), 100, 100, bluePaint);
 			//LHS
 			int leftPointerIndex = motionEvent.findPointerIndex(leftPointerId);
-			if(motionEvent.getActionMasked()==MotionEvent.ACTION_UP && motionEvent.getActionIndex() == leftPointerIndex) {
+			if(((motionEvent.getActionMasked() == MotionEvent.ACTION_UP) ||
+				(motionEvent.getActionMasked() == MotionEvent.ACTION_POINTER_UP) 
+			   ) && (motionEvent.getActionIndex() == leftPointerIndex)) {
 				//LHS UP
-				//TODO: This is still iffy.
 				Log.i("ACTION", "LHS UP");
 				leftPointerId = -2;
 				lhsDown = null;
@@ -87,23 +91,20 @@ public class JoystickView extends View {
 				}
 				
 				if(leftPointerIndex >= 0) {
-					Rect touchRect = new Rect(lhsDown.x, lhsDown.y, (int)motionEvent.getX(leftPointerIndex)-origin.x, (int)motionEvent.getY(leftPointerIndex)-origin.y);
-					canvas.drawRect(touchRect, redPaint);
+					int x = (int)motionEvent.getX(leftPointerIndex)-origin.x;
+					int y = (int)motionEvent.getY(leftPointerIndex)-origin.y;
+					//Rect touchRect = new Rect(lhsDown.x, lhsDown.y, (int)motionEvent.getX(leftPointerIndex)-origin.x, (int)motionEvent.getY(leftPointerIndex)-origin.y);
+					//canvas.drawRect(touchRect, redPaint);
+					canvas.drawCircle(lhsDown.x, lhsDown.y, 15, bluePaint);
+					canvas.drawCircle(x, y, 15, redPaint);
+					canvas.drawLine(lhsDown.x, lhsDown.y, x, y, redPaint);
 				}
 			}
 			//RHS
 		
-
-			
-			//Debug
-			for(int i=0;i<motionEvent.getPointerCount();i++) {
-				float x = (motionEvent.getHistorySize() > 0) ? motionEvent.getHistoricalAxisValue(MotionEvent.AXIS_X, i, 0) : motionEvent.getX(i);
-				Paint paint = ((x-origin.x) < (getWidth()/2)) ? redPaint : bluePaint; 
-				Rect touchRect = new Rect(0,0,(int)motionEvent.getX(i)-origin.x, (int)motionEvent.getY(i)-origin.y);
-				canvas.drawRect(touchRect, paint);
-			}
 		} else {
 			lhsDown = null;
+			canvas.drawText("null", 100, 100, bluePaint);
 		}
 		
 	}
