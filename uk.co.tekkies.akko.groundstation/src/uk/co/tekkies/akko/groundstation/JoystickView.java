@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -30,8 +31,10 @@ public class JoystickView extends View {
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if(motionEvent != null) {
+			int[] viewOrigin = new int[2];
+			this.getLocationOnScreen(viewOrigin);
 			for(int i=0;i<motionEvent.getPointerCount();i++) {
-				Rect touchRect = new Rect(0,0,(int)motionEvent.getX(i), (int)motionEvent.getY(i));
+				Rect touchRect = new Rect(0,0,(int)motionEvent.getX(i)-viewOrigin[0], (int)motionEvent.getY(i)-viewOrigin[1]);
 				canvas.drawRect(touchRect, paint);
 			}
 		}
