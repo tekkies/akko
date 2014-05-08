@@ -742,18 +742,16 @@ public class PlotView extends View {
 	
 	private Point degreesToPixels(PointF pointIn, Point pointOut) {
 
-		
-		
 		//Starting point
 		pointOut.x = (int) 300;
 		pointOut.y = (int) pointIn.y;
 		
-		double yFraction = (pointsDegreesBounds.centerY()-pointIn.y)/pointsDegreesBounds.height();
-		pointOut.y = (int) (getHeight()/2 + (yFraction* viewLimitingDimension)) ;  //invert y
+		double yOffsetFraction = (pointsDegreesBounds.centerY()-pointIn.y)/pointsDegreesBounds.height();
+		pointOut.y = (int) (getHeight()/2 + (yOffsetFraction* viewLimitingDimension)) ;  //invert y
 		
-		double xFraction = (pointsDegreesBounds.centerX()-pointIn.x)/pointsDegreesBounds.width();
-		pointOut.x = (int) (getWidth()/2 - (xFraction*(latitudeCircumference/EARTH_CIRCUMFERENCE_KM)* viewLimitingDimension)) ;
-		//pointOut.x = (int) (getWidth()/2 - (xFraction* viewLimitingDimension)) ;
+		double xOffsetFraction = (pointsDegreesBounds.centerX()-pointIn.x)/pointsDegreesBounds.width();
+		pointOut.x = (int) (getWidth()/2 - (xOffsetFraction*(latitudeCircumference/EARTH_CIRCUMFERENCE_KM)* viewLimitingDimension)) ;
+		
 		return pointOut;
 	}
 
