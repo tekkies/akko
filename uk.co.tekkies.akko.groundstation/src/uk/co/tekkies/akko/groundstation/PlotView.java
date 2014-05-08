@@ -1,8 +1,6 @@
 package uk.co.tekkies.akko.groundstation;
 import java.util.ArrayList;
 
-import org.apache.http.client.CircularRedirectException;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -11,7 +9,6 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -741,17 +738,10 @@ public class PlotView extends View {
 	
 	
 	private Point degreesToPixels(PointF pointIn, Point pointOut) {
-
-		//Starting point
-		pointOut.x = (int) 300;
-		pointOut.y = (int) pointIn.y;
-		
-		double yOffsetFraction = (pointsDegreesBounds.centerY()-pointIn.y)/pointsDegreesBounds.height();
-		pointOut.y = (int) (getHeight()/2 + (yOffsetFraction* viewLimitingDimension)) ;  //invert y
-		
 		double xOffsetFraction = (pointsDegreesBounds.centerX()-pointIn.x)/pointsDegreesBounds.width();
 		pointOut.x = (int) (getWidth()/2 - (xOffsetFraction*(latitudeCircumference/EARTH_CIRCUMFERENCE_KM)* viewLimitingDimension)) ;
-		
+		double yOffsetFraction = (pointsDegreesBounds.centerY()-pointIn.y)/pointsDegreesBounds.height();
+		pointOut.y = (int) (getHeight()/2 + (yOffsetFraction* viewLimitingDimension)) ;  //invert y
 		return pointOut;
 	}
 
