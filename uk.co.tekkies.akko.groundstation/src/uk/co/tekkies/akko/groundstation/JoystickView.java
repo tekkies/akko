@@ -2,39 +2,49 @@ package uk.co.tekkies.akko.groundstation;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
 public class JoystickView extends View {
 	Paint paint;
 	MotionEvent motionEvent=null;
+	Point origin;
 
 	public JoystickView(Context context) {
 		super(context);
-		setupPalette(context);
+		setUp(context);
 	}
 
 	public JoystickView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setupPalette(context);
+		setUp(context);
 	}
 	
-	private void setupPalette(Context context) {
+	private void setUp(Context context) {
+		setupOrigin();
+		setupPalette();
+	}
+
+	private void setupPalette() {
 		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paint.setARGB(0x80, 0xff, 0x00, 0x00);
 	}
 
+	private void setupOrigin() {
+		int[] viewOriginArray = new int[2];
+		this.getLocationOnScreen(viewOriginArray);
+		origin = new Point(viewOriginArray[0], viewOriginArray[1]);
+	}
+	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
 		if(motionEvent != null) {
-			int[] viewOrigin = new int[2];
-			this.getLocationOnScreen(viewOrigin);
 			for(int i=0;i<motionEvent.getPointerCount();i++) {
-				Rect touchRect = new Rect(0,0,(int)motionEvent.getX(i)-viewOrigin[0], (int)motionEvent.getY(i)-viewOrigin[1]);
+				Rect touchRect = new Rect(0,0,(int)motionEvent.getX(i)-origin.x, (int)motionEvent.getY(i)-origin.y);
 				canvas.drawRect(touchRect, paint);
 			}
 		}
