@@ -13,8 +13,10 @@ public class JoystickView extends View {
 	Paint redPaint;
 	Paint bluePaint;
 	MotionEvent motionEvent=null;
-	Point origin;
-	Point lhsDown=null;
+	Point origin=new Point(0,0);
+	int lhsPointerId=-2;
+	Point lhsDown=new Point();
+	Point lhsNow=new Point();
 
 	public JoystickView(Context context) {
 		super(context);
@@ -46,11 +48,15 @@ public class JoystickView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		calculateOrigin();
-		//TODO: Move call to onTouchEvent - only needs recalculating on touch. 
-		calculateJoystickPositions(motionEvent, canvas);
+		
 		if(isInEditMode()) {
 			canvas.drawRect(new Rect(50,50,150,150), redPaint);
+		} else {
+			if(lhsPointerId != -2) {
+				canvas.drawCircle(lhsDown.x, lhsDown.y, 15, bluePaint);
+				canvas.drawCircle(lhsNow.x, lhsNow.y, 15, redPaint);
+				canvas.drawLine(lhsDown.x, lhsDown.y, lhsNow.x, lhsNow.y, redPaint);
+			}
 		}
 
 	}
@@ -58,23 +64,23 @@ public class JoystickView extends View {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		motionEvent = event;
+		//calculateOrigin();
+		calculateJoystickPositions(motionEvent);
 		invalidate();
 		return true;
 	}
 
-	int leftPointerId=-2;
-	private void calculateJoystickPositions(MotionEvent motionEvent, Canvas canvas) {
+	private void calculateJoystickPositions(MotionEvent motionEvent) {
 		if(motionEvent != null) {
 			Log.i("ACTION", motionEvent.getActionMasked()+","+motionEvent.getActionIndex());
-			canvas.drawText(motionEvent.getActionMasked()+","+motionEvent.getActionIndex(), 100, 100, bluePaint);
 			//LHS
-			int leftPointerIndex = motionEvent.findPointerIndex(leftPointerId);
+			int leftPointerIndex = motionEvent.findPointerIndex(lhsPointerId);
 			if(((motionEvent.getActionMasked() == MotionEvent.ACTION_UP) ||
 				(motionEvent.getActionMasked() == MotionEvent.ACTION_POINTER_UP) 
 			   ) && (motionEvent.getActionIndex() == leftPointerIndex)) {
 				//LHS UP
 				Log.i("ACTION", "LHS UP");
-				leftPointerId = -2;
+				lhsPointerId = -2;
 				lhsDown = null;
 			} else {
 				if(leftPointerIndex < 0) {
@@ -83,7 +89,7 @@ public class JoystickView extends View {
 						//on LHS of screen?
 						if((motionEvent.getX(i)-origin.x) < (getWidth()/2)) {
 							leftPointerIndex = i;
-							leftPointerId = motionEvent.getPointerId(leftPointerIndex);
+							lhsPointerId = motionEvent.getPointerId(leftPointerIndex);
 							lhsDown = new Point((int)motionEvent.getX(leftPointerIndex)-origin.x, (int)motionEvent.getY(leftPointerIndex)-origin.y);
 							break;
 						}
@@ -91,20 +97,14 @@ public class JoystickView extends View {
 				}
 				
 				if(leftPointerIndex >= 0) {
-					int x = (int)motionEvent.getX(leftPointerIndex)-origin.x;
-					int y = (int)motionEvent.getY(leftPointerIndex)-origin.y;
-					//Rect touchRect = new Rect(lhsDown.x, lhsDown.y, (int)motionEvent.getX(leftPointerIndex)-origin.x, (int)motionEvent.getY(leftPointerIndex)-origin.y);
-					//canvas.drawRect(touchRect, redPaint);
-					canvas.drawCircle(lhsDown.x, lhsDown.y, 15, bluePaint);
-					canvas.drawCircle(x, y, 15, redPaint);
-					canvas.drawLine(lhsDown.x, lhsDown.y, x, y, redPaint);
+					lhsNow.x = (int)motionEvent.getX(leftPointerIndex)-origin.x;
+					lhsNow.y = (int)motionEvent.getY(leftPointerIndex)-origin.y;
 				}
 			}
 			//RHS
 		
 		} else {
 			lhsDown = null;
-			canvas.drawText("null", 100, 100, bluePaint);
 		}
 		
 	}
