@@ -9,7 +9,8 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class JoystickView extends View {
-	Paint paint;
+	Paint redPaint;
+	Paint bluePaint;
 	MotionEvent motionEvent=null;
 	Point origin;
 
@@ -24,16 +25,17 @@ public class JoystickView extends View {
 	}
 	
 	private void setUp(Context context) {
-		setupOrigin();
 		setupPalette();
 	}
 
 	private void setupPalette() {
-		paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		paint.setARGB(0x80, 0xff, 0x00, 0x00);
+		redPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		redPaint.setARGB(0x80, 0xff, 0x00, 0x00);
+		bluePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		bluePaint.setARGB(0x80, 0x00, 0x00, 0xff);
 	}
 
-	private void setupOrigin() {
+	private void calculateOrigin() {
 		int[] viewOriginArray = new int[2];
 		this.getLocationOnScreen(viewOriginArray);
 		origin = new Point(viewOriginArray[0], viewOriginArray[1]);
@@ -42,14 +44,16 @@ public class JoystickView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
+		calculateOrigin();
 		if(motionEvent != null) {
 			for(int i=0;i<motionEvent.getPointerCount();i++) {
+				Paint paint = ((motionEvent.getX(i)-origin.x) < (getWidth()/2)) ? redPaint : bluePaint; 
 				Rect touchRect = new Rect(0,0,(int)motionEvent.getX(i)-origin.x, (int)motionEvent.getY(i)-origin.y);
 				canvas.drawRect(touchRect, paint);
 			}
 		}
 		if(isInEditMode()) {
-			canvas.drawRect(new Rect(50,50,150,150), paint);
+			canvas.drawRect(new Rect(50,50,150,150), redPaint);
 		}
 
 	}
