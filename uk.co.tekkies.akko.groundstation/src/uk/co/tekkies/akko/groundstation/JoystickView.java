@@ -96,14 +96,27 @@ public class JoystickView extends View {
 		if(lhsPointerIndex >= 0) {
 			lhsNow.x = (int)motionEvent.getX(lhsPointerIndex);
 			lhsNow.y = (int)motionEvent.getY(lhsPointerIndex);
+			limitCoordinates(lhsDown, lhsNow);
 		}
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
 		if(rhsPointerIndex >= 0) {
 			rhsNow.x = (int)motionEvent.getX(rhsPointerIndex);
 			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex);
+			limitCoordinates(rhsDown, rhsNow);
 		}
 		
+		
+		
 	}
+
+	private void limitCoordinates(Point down, Point now) {
+		float theta = (float) Math.atan2(now.y-down.y, now.x-down.x);
+		float hyp= (float) Math.sqrt((now.y-down.y)*(now.y-down.y)+(now.x-down.x)*(now.x-down.x));
+		hyp = Math.min(hyp, getJoystickExtent());
+		now.x = (int) (down.x + (Math.cos(theta) * hyp));
+		now.y = (int) (down.y + (Math.sin(theta) * hyp));
+	}
+	
 
 	private void detectJoystickUp(MotionEvent motionEvent) {
 		int lhsPointerIndex = motionEvent.findPointerIndex(lhsPointerId);
