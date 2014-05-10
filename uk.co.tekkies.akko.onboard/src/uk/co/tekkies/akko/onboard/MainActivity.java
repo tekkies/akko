@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.SocketAddress;
 import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -282,8 +284,16 @@ public class MainActivity extends Activity implements OnClickListener, DroneStat
 	        boolean keepRunning = true;
             try {
 				socket = new DatagramSocket(params[0]);
+				int counter=0;
 		        while(keepRunning) {
 	                socket.receive(packet);
+	                
+	                String replyStr="received"+counter++;
+	    			byte[] replyBuffer = replyStr.getBytes();
+	    			InetSocketAddress replyAddress = (InetSocketAddress) packet.getSocketAddress();
+	    			DatagramPacket datagramPacket = new DatagramPacket(replyBuffer, replyStr.length(), replyAddress.getAddress(), 1986);
+	                socket.send(datagramPacket);
+	                
 	                message = new String(lmessage, 0, packet.getLength());
 	                this.publishProgress(message);
 	                if(message.equalsIgnoreCase("exit")){
