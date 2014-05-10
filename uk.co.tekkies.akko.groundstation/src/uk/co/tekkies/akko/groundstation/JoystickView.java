@@ -6,7 +6,6 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -34,6 +33,20 @@ public class JoystickView extends View {
 		setUp(context);
 	}
 	
+	public void getLhsStick(PointF stick) {
+		synchronized(lhsStick) {
+			stick.x = lhsStick.x;
+			stick.y = lhsStick.y;
+		}
+	}
+
+	public void getRhsStick(PointF stick) {
+		synchronized(rhsStick) {
+			stick.x = rhsStick.x;
+			stick.y = rhsStick.y;
+		}
+	}
+	
 	private void setUp(Context context) {
 		setupPalette();
 	}
@@ -50,9 +63,8 @@ public class JoystickView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		
 		if(isInEditMode()) {
-			canvas.drawRect(new Rect(50,50,150,150), redPaint);
+			editModeDraw(canvas);
 		} else {
 			if(lhsPointerId != -2) {
 				//canvas.drawCircle(lhsDown.x, lhsDown.y, getJoystickExtent(), extentPaint);
@@ -76,8 +88,16 @@ public class JoystickView extends View {
 		}
 		canvas.drawText("lx:"+x, 50, 100, bluePaint);
 		canvas.drawText("ly:"+y, 50, 120, bluePaint);
-		canvas.drawText("rx:"+rhsStick.x, 50, 140, bluePaint);
-		canvas.drawText("ry:"+rhsStick.y, 50, 160, bluePaint);
+		synchronized(lhsStick) {
+			x=lhsStick.x;
+			y=lhsStick.y;
+		}
+		canvas.drawText("rx:"+x, 50, 140, bluePaint);
+		canvas.drawText("ry:"+y, 50, 160, bluePaint);
+	}
+
+	private void editModeDraw(Canvas canvas) {
+		canvas.drawRect(new Rect(50,50,150,150), redPaint);
 	}
 
 	private int getJoystickExtent() {
@@ -87,7 +107,6 @@ public class JoystickView extends View {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		motionEvent = event;
-		//calculateOrigin();
 		calculateJoystickPositions(motionEvent);
 		invalidate();
 		return true;
@@ -123,8 +142,10 @@ public class JoystickView extends View {
 			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex);
 			limitCoordinatesCircle(rhsDown, rhsNow);
 			//limitCoordinatesRect(rhsDown, rhsNow);
-			rhsStick.x = (rhsNow.x-rhsDown.x)/(float)getJoystickExtent();
-			rhsStick.y = (rhsDown.y-rhsNow.y)/(float)getJoystickExtent();
+			synchronized(rhsStick) {
+				rhsStick.x = (rhsNow.x-rhsDown.x)/(float)getJoystickExtent();
+				rhsStick.y = (rhsDown.y-rhsNow.y)/(float)getJoystickExtent();
+			}
 		}
 	}
 
@@ -146,7 +167,6 @@ public class JoystickView extends View {
 		now.x = (int) (down.x + (Math.cos(theta) * hyp));
 		now.y = (int) (down.y + (Math.sin(theta) * hyp));
 	}
-	
 
 	private void detectJoystickUp(MotionEvent motionEvent) {
 		int lhsPointerIndex = motionEvent.findPointerIndex(lhsPointerId);
@@ -157,12 +177,13 @@ public class JoystickView extends View {
 				lhsStick.y = 0;
 			}
 		}
-
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
 		if(motionEvent.getActionIndex() == rhsPointerIndex) {
 			rhsPointerId = -2;
-			rhsStick.x = 0;
-			rhsStick.y = 0;
+			synchronized(rhsStick) {
+				rhsStick.x = 0;
+				rhsStick.y = 0;
+			}
 		}
 	}
 
@@ -178,7 +199,6 @@ public class JoystickView extends View {
 				}
 			}
 		}
-		
 		if(rhsPointerId == -2) {
 			for(int i=0;i<motionEvent.getPointerCount();i++) {
 				//on LHS of screen?
@@ -191,13 +211,5 @@ public class JoystickView extends View {
 			}
 		}
 	}
-
-	public void getLhsStick(PointF stick) {
-		synchronized(lhsStick) {
-			stick.x = lhsStick.x;
-			stick.y = rhsStick.y;
-		}
-	}
-
 }
 
