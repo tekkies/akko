@@ -13,7 +13,6 @@ public class JoystickView extends View {
 	Paint redPaint;
 	Paint bluePaint;
 	MotionEvent motionEvent=null;
-	Point origin=new Point(0,0);
 	int lhsPointerId=-2;
 	int rhsPointerId=-2;
 	Point lhsDown=new Point();
@@ -42,10 +41,7 @@ public class JoystickView extends View {
 		bluePaint.setARGB(0x80, 0x00, 0x00, 0xff);
 	}
 
-	private void calculateOrigin() {
-		int[] viewOriginArray = new int[2];
-		this.getLocationOnScreen(viewOriginArray);
-		origin = new Point(viewOriginArray[0], viewOriginArray[1]);
+	private void calculateDimensions() {
 	}
 	
 	@Override
@@ -94,13 +90,13 @@ public class JoystickView extends View {
 	private void detectCurrentJoystickPositions(MotionEvent motionEvent) {
 		int lhsPointerIndex = motionEvent.findPointerIndex(lhsPointerId);
 		if(lhsPointerIndex >= 0) {
-			lhsNow.x = (int)motionEvent.getX(lhsPointerIndex)-origin.x;
-			lhsNow.y = (int)motionEvent.getY(lhsPointerIndex)-origin.y;
+			lhsNow.x = (int)motionEvent.getX(lhsPointerIndex);
+			lhsNow.y = (int)motionEvent.getY(lhsPointerIndex);
 		}
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
 		if(rhsPointerIndex >= 0) {
-			rhsNow.x = (int)motionEvent.getX(rhsPointerIndex)-origin.x;
-			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex)-origin.y;
+			rhsNow.x = (int)motionEvent.getX(rhsPointerIndex);
+			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex);
 		}
 		
 	}
@@ -121,10 +117,10 @@ public class JoystickView extends View {
 		if(lhsPointerId == -2) {
 			for(int i=0;i<motionEvent.getPointerCount();i++) {
 				//on LHS of screen?
-				if((motionEvent.getX(i)-origin.x) < (getWidth()/2)) {
+				if((motionEvent.getX(i)) < (getWidth()/2)) {
 					lhsPointerId = motionEvent.getPointerId(i);
-					lhsDown.x = (int)motionEvent.getX(i)-origin.x;
-					lhsDown.y = (int)motionEvent.getY(i)-origin.y;
+					lhsDown.x = (int)motionEvent.getX(i);
+					lhsDown.y = (int)motionEvent.getY(i);
 					break;
 				}
 			}
@@ -133,10 +129,10 @@ public class JoystickView extends View {
 		if(rhsPointerId == -2) {
 			for(int i=0;i<motionEvent.getPointerCount();i++) {
 				//on LHS of screen?
-				if((motionEvent.getX(i)-origin.x) > (getWidth()/2)) {
+				if((motionEvent.getX(i)) > (getWidth()/2)) {
 					rhsPointerId = motionEvent.getPointerId(i);
-					rhsDown.x = (int)motionEvent.getX(i)-origin.x;
-					rhsDown.y = (int)motionEvent.getY(i)-origin.y;
+					rhsDown.x = (int)motionEvent.getX(i);
+					rhsDown.y = (int)motionEvent.getY(i);
 					break;
 				}
 			}
