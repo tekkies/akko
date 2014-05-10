@@ -11,18 +11,18 @@ import android.view.MotionEvent;
 import android.view.View;
 
 public class JoystickView extends View {
-	Paint redPaint;
-	Paint bluePaint;
-	Paint extentPaint;
-	MotionEvent motionEvent=null;
-	int lhsPointerId=-2;
-	int rhsPointerId=-2;
-	Point lhsDown=new Point();
-	Point rhsDown=new Point();
-	Point lhsNow=new Point();
-	Point rhsNow=new Point();
-	PointF lhsStick=new PointF(0,0);
-	PointF rhsStick=new PointF(0,0);
+	private Paint redPaint;
+	private Paint bluePaint;
+	private Paint extentPaint;
+	private MotionEvent motionEvent=null;
+	private int lhsPointerId=-2;
+	private int rhsPointerId=-2;
+	private Point lhsDown=new Point();
+	private Point rhsDown=new Point();
+	private Point lhsNow=new Point();
+	private Point rhsNow=new Point();
+	private PointF lhsStick=new PointF(0,0);
+	private PointF rhsStick=new PointF(0,0);
 
 	public JoystickView(Context context) {
 		super(context);
@@ -69,8 +69,13 @@ public class JoystickView extends View {
 		}
 		String upDown = (lhsPointerId != -2 ? "_" : "-") + " " + (rhsPointerId != -2 ? "_" : "-"); 
 		canvas.drawText(upDown, 50, 50, bluePaint);
-		canvas.drawText("lx:"+lhsStick.x, 50, 100, bluePaint);
-		canvas.drawText("ly:"+lhsStick.y, 50, 120, bluePaint);
+		float x,y;
+		synchronized(lhsStick) {
+			x=lhsStick.x;
+			y=lhsStick.y;
+		}
+		canvas.drawText("lx:"+x, 50, 100, bluePaint);
+		canvas.drawText("ly:"+y, 50, 120, bluePaint);
 		canvas.drawText("rx:"+rhsStick.x, 50, 140, bluePaint);
 		canvas.drawText("ry:"+rhsStick.y, 50, 160, bluePaint);
 	}
@@ -107,8 +112,10 @@ public class JoystickView extends View {
 			lhsNow.y = (int)motionEvent.getY(lhsPointerIndex);
 			//limitCoordinatesCircle(lhsDown, lhsNow);
 			limitCoordinatesRect(lhsDown, lhsNow);
-			lhsStick.x = (lhsNow.x-lhsDown.x)/(float)getJoystickExtent();
-			lhsStick.y = (lhsDown.y-lhsNow.y)/(float)getJoystickExtent();
+			synchronized(lhsStick) {
+				lhsStick.x = (lhsNow.x-lhsDown.x)/(float)getJoystickExtent();
+				lhsStick.y = (lhsDown.y-lhsNow.y)/(float)getJoystickExtent();
+			}
 		}
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
 		if(rhsPointerIndex >= 0) {
@@ -145,8 +152,10 @@ public class JoystickView extends View {
 		int lhsPointerIndex = motionEvent.findPointerIndex(lhsPointerId);
 		if(motionEvent.getActionIndex() == lhsPointerIndex) {
 			lhsPointerId = -2;
-			lhsStick.x = 0;
-			lhsStick.y = 0;
+			synchronized(lhsStick) {
+				lhsStick.x = 0;
+				lhsStick.y = 0;
+			}
 		}
 
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
@@ -182,5 +191,13 @@ public class JoystickView extends View {
 			}
 		}
 	}
+
+	public void getLhsStick(PointF stick) {
+		synchronized(lhsStick) {
+			stick.x = lhsStick.x;
+			stick.y = rhsStick.y;
+		}
+	}
+
 }
 
