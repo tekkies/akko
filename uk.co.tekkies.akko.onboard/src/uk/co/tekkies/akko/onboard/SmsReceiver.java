@@ -1,7 +1,5 @@
 package uk.co.tekkies.akko.onboard;
 
-import java.net.UnknownHostException;
-
 import com.codeminders.ardrone.ARDrone;
 
 import android.content.BroadcastReceiver;
@@ -20,7 +18,6 @@ public class SmsReceiver extends BroadcastReceiver
 	    //---get the SMS message passed in---
 	    Bundle bundle = intent.getExtras();        
 	    SmsMessage[] msgs = null;
-	    String str = "";            
 	    if (bundle != null)
 	    {
 	        //---retrieve the SMS message received---
@@ -29,20 +26,19 @@ public class SmsReceiver extends BroadcastReceiver
 	        for (int i=0; i<msgs.length; i++)
 	         {
 	            msgs[i] = SmsMessage.createFromPdu((byte[])pdus[i]);                
-	            str += "SMS from " + msgs[i].getOriginatingAddress();                     
-	            str += " :";
-	            str += msgs[i].getMessageBody().toString();
-	            str += "\n";
+//	            str += "SMS from " + msgs[i].getOriginatingAddress();                     
+//	            str += " :";
+//	            str += msgs[i].getMessageBody().toString();
+//	            str += "\n";
 	            String message = msgs[i].getMessageBody().toString();
 	            if(message.equalsIgnoreCase("akko kill")){
 	            	doKill(context);
 	            } else if(message.equalsIgnoreCase("akko land")) {
 	            	doLand(context);
 	            }
-	            
 	        }
 	    }                   
-	    }
+    }
 
 	private void doLand(Context context) {
 	    Toast.makeText(context, "Landing...", Toast.LENGTH_LONG).show();
