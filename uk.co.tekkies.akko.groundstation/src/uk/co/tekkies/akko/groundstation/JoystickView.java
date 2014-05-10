@@ -56,11 +56,13 @@ public class JoystickView extends View {
 		} else {
 			if(lhsPointerId != -2) {
 				canvas.drawCircle(lhsDown.x, lhsDown.y, getJoystickExtent(), extentPaint);
+				canvas.drawRect(lhsDown.x-getJoystickExtent(), lhsDown.y-getJoystickExtent(), lhsDown.x+getJoystickExtent(), lhsDown.y+getJoystickExtent(), extentPaint);
 				canvas.drawCircle(lhsNow.x, lhsNow.y, 15, redPaint);
 				canvas.drawLine(lhsDown.x, lhsDown.y, lhsNow.x, lhsNow.y, redPaint);
 			}
 			if(rhsPointerId != -2) {
 				canvas.drawCircle(rhsDown.x, rhsDown.y, getJoystickExtent(), extentPaint);
+				canvas.drawRect(rhsDown.x-getJoystickExtent(), rhsDown.y-getJoystickExtent(), rhsDown.x+getJoystickExtent(), rhsDown.y+getJoystickExtent(), extentPaint);
 				canvas.drawCircle(rhsNow.x, rhsNow.y, 15, redPaint);
 				canvas.drawLine(rhsDown.x, rhsDown.y, rhsNow.x, rhsNow.y, redPaint);
 			}
@@ -103,7 +105,8 @@ public class JoystickView extends View {
 		if(lhsPointerIndex >= 0) {
 			lhsNow.x = (int)motionEvent.getX(lhsPointerIndex);
 			lhsNow.y = (int)motionEvent.getY(lhsPointerIndex);
-			limitCoordinates(lhsDown, lhsNow);
+			//limitCoordinatesCircle(lhsDown, lhsNow);
+			limitCoordinatesRect(lhsDown, lhsNow);
 			lhsStick.x = (lhsNow.x-lhsDown.x)/(float)getJoystickExtent();
 			lhsStick.y = (lhsDown.y-lhsNow.y)/(float)getJoystickExtent();
 		}
@@ -111,13 +114,25 @@ public class JoystickView extends View {
 		if(rhsPointerIndex >= 0) {
 			rhsNow.x = (int)motionEvent.getX(rhsPointerIndex);
 			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex);
-			limitCoordinates(rhsDown, rhsNow);
+			//limitCoordinatesCircle(rhsDown, rhsNow);
+			limitCoordinatesRect(rhsDown, rhsNow);
 			rhsStick.x = (rhsNow.x-rhsDown.x)/(float)getJoystickExtent();
 			rhsStick.y = (rhsDown.y-rhsNow.y)/(float)getJoystickExtent();
 		}
 	}
 
-	private void limitCoordinates(Point down, Point now) {
+	private void limitCoordinatesRect(Point down, Point now) {
+		int x = now.x - down.x;
+		int y = now.y - down.y;
+		x = Math.min(x, getJoystickExtent());
+		x = Math.max(x, 0-getJoystickExtent());
+		y = Math.min(y, getJoystickExtent());
+		y = Math.max(y, 0-getJoystickExtent());
+		now.x = down.x+x;
+		now.y = down.y+y;
+	}
+
+	private void limitCoordinatesCircle(Point down, Point now) {
 		float theta = (float) Math.atan2(now.y-down.y, now.x-down.x);
 		float hyp= (float) Math.sqrt((now.y-down.y)*(now.y-down.y)+(now.x-down.x)*(now.x-down.x));
 		hyp = Math.min(hyp, getJoystickExtent());
