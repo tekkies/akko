@@ -12,6 +12,7 @@ import android.view.View;
 public class JoystickView extends View {
 	Paint redPaint;
 	Paint bluePaint;
+	Paint extentPaint;
 	MotionEvent motionEvent=null;
 	int lhsPointerId=-2;
 	int rhsPointerId=-2;
@@ -39,9 +40,8 @@ public class JoystickView extends View {
 		redPaint.setARGB(0x80, 0xff, 0x00, 0x00);
 		bluePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		bluePaint.setARGB(0x80, 0x00, 0x00, 0xff);
-	}
-
-	private void calculateDimensions() {
+		extentPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		extentPaint.setARGB(0x10, 0x00, 0x00, 0x00);
 	}
 	
 	@Override
@@ -52,18 +52,22 @@ public class JoystickView extends View {
 			canvas.drawRect(new Rect(50,50,150,150), redPaint);
 		} else {
 			if(lhsPointerId != -2) {
-				canvas.drawCircle(lhsDown.x, lhsDown.y, 15, bluePaint);
+				canvas.drawCircle(lhsDown.x, lhsDown.y, getJoystickExtent(), extentPaint);
 				canvas.drawCircle(lhsNow.x, lhsNow.y, 15, redPaint);
 				canvas.drawLine(lhsDown.x, lhsDown.y, lhsNow.x, lhsNow.y, redPaint);
 			}
 			if(rhsPointerId != -2) {
-				canvas.drawCircle(rhsDown.x, rhsDown.y, 15, bluePaint);
+				canvas.drawCircle(rhsDown.x, rhsDown.y, getJoystickExtent(), extentPaint);
 				canvas.drawCircle(rhsNow.x, rhsNow.y, 15, redPaint);
 				canvas.drawLine(rhsDown.x, rhsDown.y, rhsNow.x, rhsNow.y, redPaint);
 			}
 		}
 		String upDown = (lhsPointerId != -2 ? "_" : "-") + " " + (rhsPointerId != -2 ? "_" : "-"); 
 		canvas.drawText(upDown, 50, 50, bluePaint);
+	}
+
+	private int getJoystickExtent() {
+		return getHeight()/4;
 	}
 
 	@Override
