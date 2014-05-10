@@ -3,6 +3,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -20,6 +21,8 @@ public class JoystickView extends View {
 	Point rhsDown=new Point();
 	Point lhsNow=new Point();
 	Point rhsNow=new Point();
+	PointF lhsStick=new PointF(0,0);
+	PointF rhsStick=new PointF(0,0);
 
 	public JoystickView(Context context) {
 		super(context);
@@ -64,6 +67,10 @@ public class JoystickView extends View {
 		}
 		String upDown = (lhsPointerId != -2 ? "_" : "-") + " " + (rhsPointerId != -2 ? "_" : "-"); 
 		canvas.drawText(upDown, 50, 50, bluePaint);
+		canvas.drawText("lx:"+lhsStick.x, 50, 100, bluePaint);
+		canvas.drawText("ly:"+lhsStick.y, 50, 120, bluePaint);
+		canvas.drawText("rx:"+rhsStick.x, 50, 140, bluePaint);
+		canvas.drawText("ry:"+rhsStick.y, 50, 160, bluePaint);
 	}
 
 	private int getJoystickExtent() {
@@ -97,16 +104,17 @@ public class JoystickView extends View {
 			lhsNow.x = (int)motionEvent.getX(lhsPointerIndex);
 			lhsNow.y = (int)motionEvent.getY(lhsPointerIndex);
 			limitCoordinates(lhsDown, lhsNow);
+			lhsStick.x = (lhsNow.x-lhsDown.x)/(float)getJoystickExtent();
+			lhsStick.y = (lhsDown.y-lhsNow.y)/(float)getJoystickExtent();
 		}
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
 		if(rhsPointerIndex >= 0) {
 			rhsNow.x = (int)motionEvent.getX(rhsPointerIndex);
 			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex);
 			limitCoordinates(rhsDown, rhsNow);
+			rhsStick.x = (rhsNow.x-rhsDown.x)/(float)getJoystickExtent();
+			rhsStick.y = (rhsDown.y-rhsNow.y)/(float)getJoystickExtent();
 		}
-		
-		
-		
 	}
 
 	private void limitCoordinates(Point down, Point now) {
@@ -122,11 +130,15 @@ public class JoystickView extends View {
 		int lhsPointerIndex = motionEvent.findPointerIndex(lhsPointerId);
 		if(motionEvent.getActionIndex() == lhsPointerIndex) {
 			lhsPointerId = -2;
+			lhsStick.x = 0;
+			lhsStick.y = 0;
 		}
 
 		int rhsPointerIndex = motionEvent.findPointerIndex(rhsPointerId);
 		if(motionEvent.getActionIndex() == rhsPointerIndex) {
 			rhsPointerId = -2;
+			rhsStick.x = 0;
+			rhsStick.y = 0;
 		}
 	}
 
