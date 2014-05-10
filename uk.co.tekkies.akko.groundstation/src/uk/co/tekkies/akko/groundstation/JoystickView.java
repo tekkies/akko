@@ -55,14 +55,14 @@ public class JoystickView extends View {
 			canvas.drawRect(new Rect(50,50,150,150), redPaint);
 		} else {
 			if(lhsPointerId != -2) {
-				canvas.drawCircle(lhsDown.x, lhsDown.y, getJoystickExtent(), extentPaint);
+				//canvas.drawCircle(lhsDown.x, lhsDown.y, getJoystickExtent(), extentPaint);
 				canvas.drawRect(lhsDown.x-getJoystickExtent(), lhsDown.y-getJoystickExtent(), lhsDown.x+getJoystickExtent(), lhsDown.y+getJoystickExtent(), extentPaint);
 				canvas.drawCircle(lhsNow.x, lhsNow.y, 15, redPaint);
 				canvas.drawLine(lhsDown.x, lhsDown.y, lhsNow.x, lhsNow.y, redPaint);
 			}
 			if(rhsPointerId != -2) {
 				canvas.drawCircle(rhsDown.x, rhsDown.y, getJoystickExtent(), extentPaint);
-				canvas.drawRect(rhsDown.x-getJoystickExtent(), rhsDown.y-getJoystickExtent(), rhsDown.x+getJoystickExtent(), rhsDown.y+getJoystickExtent(), extentPaint);
+				//canvas.drawRect(rhsDown.x-getJoystickExtent(), rhsDown.y-getJoystickExtent(), rhsDown.x+getJoystickExtent(), rhsDown.y+getJoystickExtent(), extentPaint);
 				canvas.drawCircle(rhsNow.x, rhsNow.y, 15, redPaint);
 				canvas.drawLine(rhsDown.x, rhsDown.y, rhsNow.x, rhsNow.y, redPaint);
 			}
@@ -114,8 +114,8 @@ public class JoystickView extends View {
 		if(rhsPointerIndex >= 0) {
 			rhsNow.x = (int)motionEvent.getX(rhsPointerIndex);
 			rhsNow.y = (int)motionEvent.getY(rhsPointerIndex);
-			//limitCoordinatesCircle(rhsDown, rhsNow);
-			limitCoordinatesRect(rhsDown, rhsNow);
+			limitCoordinatesCircle(rhsDown, rhsNow);
+			//limitCoordinatesRect(rhsDown, rhsNow);
 			rhsStick.x = (rhsNow.x-rhsDown.x)/(float)getJoystickExtent();
 			rhsStick.y = (rhsDown.y-rhsNow.y)/(float)getJoystickExtent();
 		}
