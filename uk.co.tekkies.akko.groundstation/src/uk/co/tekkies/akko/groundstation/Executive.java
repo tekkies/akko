@@ -1,6 +1,7 @@
 package uk.co.tekkies.akko.groundstation;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -10,7 +11,10 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import android.content.Context;
 import android.graphics.PointF;
+import android.net.DhcpInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,6 +24,7 @@ public class Executive {
 	private volatile boolean keepRunning = true;
 	private ThreadPoolExecutor threadPoolExecutor;
 	private MainActivity mainActivity=null;
+	int session = 0;
 
 	public Executive() {
 		threadPoolExecutor = new ThreadPoolExecutor(
@@ -50,27 +55,71 @@ public class Executive {
 		@Override
 		protected String doInBackground(Integer... params) {
 			while(keepRunning) {
-				mainActivity.getJoystickView().getLhsStick(lhsJoystick);
-				sendUdpPacket();
 				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
+					connectAndRun();
+					Thread.sleep(1000);
+				} catch (Exception e) {
+					//Pokemon: Gotta keep trying
 					e.printStackTrace();
 				}
 			}
 	        return null;
 	    }
 
-		private void sendUdpPacket() {
+		private void connectAndRun() {
+			pingOnboard();
+			while(keepRunning) {
+				mainActivity.getJoystickView().getLhsStick(lhsJoystick);
+				//sendUdpPacket();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		
+		private void pingOnboard() {
+			session = 1+(int) (Math.random()*1000000);
+			
+			
+			try {
+				sendUdpPacket(InetAddress.getByName("255.255.255.255"));
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			
+			
+//			long[] range = getSubnetRange();
+//			for(int ipInt=range[0];ipInt !> range[1]; ipInt++) {
+//				byte[] ipBytes = BigInteger.valueOf(ipInt).toByteArray();
+//				try {
+//					sendUdpPacket(InetAddress.getByAddress(ipBytes));
+//				} catch (UnknownHostException e) {
+//					e.printStackTrace();
+//				}
+//			}
+		}
+		private int[] getSubnetRange() {
+			WifiManager wifiManager= (WifiManager) mainActivity.getSystemService(Context.WIFI_SERVICE);
+			DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
+			int[] range = new int[2];  
+			range[0] = dhcpInfo.ipAddress & dhcpInfo.netmask;
+			range[1] = (dhcpInfo.ipAddress | ~dhcpInfo.netmask) & 0x8fffffff;
+			return range;
+		}
+
+		private void sendUdpPacket(InetAddress inetAddress) {
 			String messageStr="lhsX="+lhsJoystick.x;
 			int server_port = 1985;
-			InetAddress local=null;
 			try {
 	    		datagramSocketSend = new DatagramSocket();
-				local = InetAddress.getByName("localhost");
 				int msg_length=messageStr.length();
 				byte[] message = messageStr.getBytes();
-				DatagramPacket p = new DatagramPacket(message, msg_length,local,server_port);
+				DatagramPacket p = new DatagramPacket(message, msg_length,inetAddress,server_port);
 				datagramSocketSend.send(p);
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
