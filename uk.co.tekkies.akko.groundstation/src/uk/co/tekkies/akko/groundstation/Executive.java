@@ -20,31 +20,22 @@ import android.util.Log;
 
 public class Executive {
 	private static final int MAX_UDP_DATAGRAM_LEN = 1024;
-	private static final int MAX_THREADS=3;
 	private static final int ONBOARD_PORT = 1985;
 	private static final int GROUNDSTATION_PORT = 1986;
 	
 	private volatile boolean keepRunning = true;
-	private ThreadPoolExecutor threadPoolExecutor;
 	private MainActivity mainActivity=null;
 	int session = 0;
 	private volatile InetAddress inetAddressOnboard=null;
 
 	public Executive() {
-		threadPoolExecutor = new ThreadPoolExecutor(
-				MAX_THREADS, // core thread pool size
-				MAX_THREADS, // maximum thread pool size
-			    1, // time to wait before resizing pool
-			    TimeUnit.MINUTES, 
-			    new ArrayBlockingQueue<Runnable>(MAX_THREADS, true),
-			    new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 	
 	public void start(MainActivity mainActivity)	{
 		this.mainActivity = mainActivity;
 		keepRunning = true;
-        new UdpReceiveAsyncTask().executeOnExecutor(threadPoolExecutor, GROUNDSTATION_PORT);
-		new UdpSendAsyncTask().executeOnExecutor(threadPoolExecutor, 0);
+        new UdpReceiveAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, GROUNDSTATION_PORT);
+		new UdpSendAsyncTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, 0);
 	}
 	
 	public void stop() {
